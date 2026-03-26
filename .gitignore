@@ -28,7 +28,7 @@ venv/
 .venv/
 env/
 ENV/
-.python-version
+
 
 # Pipenv
 Pipfile.lock
