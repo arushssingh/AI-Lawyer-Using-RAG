@@ -2,9 +2,8 @@ streamlit
 langchain
 langchain-community
 langchain-groq
-langchain-huggingface
 langchain-text-splitters
-sentence-transformers
+fastembed
 faiss-cpu
 pdfplumber
 python-dotenv

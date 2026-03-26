@@ -7,7 +7,7 @@ if "GROQ_API_KEY" in __import__("streamlit").secrets:
 
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import FastEmbedEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
@@ -24,7 +24,7 @@ Answer:
 """
 
 
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+embeddings = FastEmbedEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 FAISS_DB_PATH="vectorstore/db_faiss"
 
 
@@ -53,7 +53,7 @@ def create_chunks(documents):
 
 
 def get_embedding_model():
-    return HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    return FastEmbedEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 
 def create_vector_store(db_faiss_path, text_chunks):
