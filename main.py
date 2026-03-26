@@ -1,6 +1,9 @@
 import streamlit as st
 from dotenv import load_dotenv
+import os
 load_dotenv()
+if "GROQ_API_KEY" in __import__("streamlit").secrets:
+    os.environ["GROQ_API_KEY"] = __import__("streamlit").secrets["GROQ_API_KEY"]
 
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -26,7 +29,7 @@ FAISS_DB_PATH="vectorstore/db_faiss"
 
 
 pdfs_directory = 'pdfs/'
-llm_model=ChatGroq(model="deepseek-r1-distill-llama-70b")
+llm_model=ChatGroq(model="llama-3.3-70b-versatile")
 
 def upload_pdf(file):
     with open(pdfs_directory + file.name, "wb") as f:
@@ -98,7 +101,7 @@ if ask_question:
         response=answer_query(documents=retrieved_docs, model=llm_model, query=user_query)
 
         st.chat_message("user").write(user_query)
-        st.chat_message("AI Lawyer").write(response)
+        st.chat_message("AI Lawyer").write(response.content)
 
     else:
         st.error("Kindly upload a valid PDF file and/or ask a valid Question!")
