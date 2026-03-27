@@ -38,6 +38,8 @@ FAISS_DB_PATH="vectorstore/db_faiss"
 
 
 pdfs_directory = 'pdfs/'
+os.makedirs(pdfs_directory, exist_ok=True)
+os.makedirs('vectorstore/', exist_ok=True)
 llm_model=ChatGroq(model="llama-3.3-70b-versatile")
 
 def upload_pdf(file):
