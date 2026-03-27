@@ -30,8 +30,12 @@ Answer:
 """
 
 
+hf_api_key = os.environ.get("HF_API_KEY", "")
+if not hf_api_key:
+    st.error("HF_API_KEY is missing. Add it to .env locally or Streamlit Cloud Secrets.")
+    st.stop()
 embeddings = HuggingFaceInferenceAPIEmbeddings(
-    api_key=os.environ.get("HF_API_KEY", ""),
+    api_key=hf_api_key,
     model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
 FAISS_DB_PATH="vectorstore/db_faiss"
@@ -68,6 +72,7 @@ def get_embedding_model():
         api_key=os.environ.get("HF_API_KEY", ""),
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
+
 
 
 def create_vector_store(db_faiss_path, text_chunks):
