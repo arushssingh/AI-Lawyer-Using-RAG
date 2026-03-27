@@ -13,11 +13,30 @@ except Exception:
 
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+import requests
+from langchain_core.embeddings import Embeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
 
+
+
+class HFEmbeddings(Embeddings):
+    def __init__(self, api_key: str, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
+        self.api_key = api_key
+        self.api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model_name}"
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        response = requests.post(
+            self.api_url,
+            headers={"Authorization": f"Bearer {self.api_key}"},
+            json={"inputs": texts, "options": {"wait_for_model": True}}
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def embed_query(self, text: str) -> list[float]:
+        return self.embed_documents([text])[0]
 
 
 custom_prompt_template = """
@@ -34,10 +53,7 @@ hf_api_key = os.environ.get("HF_API_KEY", "")
 if not hf_api_key:
     st.error("HF_API_KEY is missing. Add it to .env locally or Streamlit Cloud Secrets.")
     st.stop()
-embeddings = HuggingFaceInferenceAPIEmbeddings(
-    api_key=hf_api_key,
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
+embeddings = HFEmbeddings(api_key=hf_api_key)
 FAISS_DB_PATH="vectorstore/db_faiss"
 
 
@@ -68,11 +84,7 @@ def create_chunks(documents):
 
 
 def get_embedding_model():
-    return HuggingFaceInferenceAPIEmbeddings(
-        api_key=os.environ.get("HF_API_KEY", ""),
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-
+    return HFEmbeddings(api_key=os.environ.get("HF_API_KEY", ""))
 
 
 def create_vector_store(db_faiss_path, text_chunks):
