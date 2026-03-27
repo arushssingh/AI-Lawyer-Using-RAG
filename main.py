@@ -24,7 +24,7 @@ from langchain_groq import ChatGroq
 class HFEmbeddings(Embeddings):
     def __init__(self, api_key: str, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
         self.api_key = api_key
-        self.api_url = f"https://router.huggingface.co/hf-inference/models/{model_name}"
+        self.api_url = f"https://router.huggingface.co/hf-inference/pipeline/feature-extraction/{model_name}"
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         all_embeddings = []
@@ -34,7 +34,7 @@ class HFEmbeddings(Embeddings):
             response = requests.post(
                 self.api_url,
                 headers={"Authorization": f"Bearer {self.api_key}"},
-                json={"inputs": batch, "options": {"wait_for_model": True}},
+                json={"inputs": batch},
                 timeout=120
             )
             if response.status_code != 200:
