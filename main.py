@@ -130,16 +130,19 @@ ask_question = st.button("Ask AI Lawyer")
 if ask_question:
 
     if uploaded_file and user_query:
-        upload_pdf(uploaded_file)
-        documents = load_pdf(pdfs_directory + uploaded_file.name)
-        text_chunks = create_chunks(documents)
-        faiss_db = create_vector_store(FAISS_DB_PATH, text_chunks)
+        try:
+            upload_pdf(uploaded_file)
+            documents = load_pdf(pdfs_directory + uploaded_file.name)
+            text_chunks = create_chunks(documents)
+            faiss_db = create_vector_store(FAISS_DB_PATH, text_chunks)
 
-        retrieved_docs=retrieve_docs(faiss_db, user_query)
-        response=answer_query(documents=retrieved_docs, model=llm_model, query=user_query)
+            retrieved_docs=retrieve_docs(faiss_db, user_query)
+            response=answer_query(documents=retrieved_docs, model=llm_model, query=user_query)
 
-        st.chat_message("user").write(user_query)
-        st.chat_message("AI Lawyer").write(response.content)
+            st.chat_message("user").write(user_query)
+            st.chat_message("AI Lawyer").write(response.content)
+        except Exception as e:
+            st.error(f"Error: {e}")
 
     else:
         st.error("Kindly upload a valid PDF file and/or ask a valid Question!")
