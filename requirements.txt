@@ -4,6 +4,5 @@ langchain-community
 langchain-groq
 langchain-text-splitters
 faiss-cpu
-huggingface_hub
 pdfplumber
 python-dotenv

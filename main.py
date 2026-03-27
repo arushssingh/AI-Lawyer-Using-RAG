@@ -13,7 +13,7 @@ except Exception:
 
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from huggingface_hub import InferenceClient
+import requests
 from langchain_core.embeddings import Embeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.vectorstores import FAISS
@@ -23,13 +23,29 @@ from langchain_groq import ChatGroq
 
 class HFEmbeddings(Embeddings):
     def __init__(self, api_key: str, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
-        self.client = InferenceClient(model=model_name, token=api_key)
+        self.api_key = api_key
+        self.api_url = f"https://router.huggingface.co/hf-inference/models/{model_name}/pipeline/feature-extraction"
+
+    def _embed(self, texts: list[str]) -> list[list[float]]:
+        response = requests.post(
+            self.api_url,
+            headers={"Authorization": f"Bearer {self.api_key}"},
+            json={"inputs": texts},
+            timeout=120
+        )
+        if response.status_code != 200:
+            raise ValueError(f"HF API error {response.status_code}: {response.text}")
+        return response.json()
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
-        return [self.client.feature_extraction(text).tolist() for text in texts]
+        all_embeddings = []
+        batch_size = 32
+        for i in range(0, len(texts), batch_size):
+            all_embeddings.extend(self._embed(texts[i:i + batch_size]))
+        return all_embeddings
 
     def embed_query(self, text: str) -> list[float]:
-        return self.client.feature_extraction(text).tolist()
+        return self._embed([text])[0]
 
 
 custom_prompt_template = """
