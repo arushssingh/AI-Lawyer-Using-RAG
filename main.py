@@ -2,12 +2,18 @@ import streamlit as st
 from dotenv import load_dotenv
 import os
 load_dotenv()
-if "GROQ_API_KEY" in __import__("streamlit").secrets:
-    os.environ["GROQ_API_KEY"] = __import__("streamlit").secrets["GROQ_API_KEY"]
+try:
+    secrets = __import__("streamlit").secrets
+    if "GROQ_API_KEY" in secrets:
+        os.environ["GROQ_API_KEY"] = secrets["GROQ_API_KEY"]
+    if "HF_API_KEY" in secrets:
+        os.environ["HF_API_KEY"] = secrets["HF_API_KEY"]
+except Exception:
+    pass
 
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import FastEmbedEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.vectorstores import FAISS
 from langchain_groq import ChatGroq
@@ -24,7 +30,10 @@ Answer:
 """
 
 
-embeddings = FastEmbedEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embeddings = HuggingFaceInferenceAPIEmbeddings(
+    api_key=os.environ.get("HF_API_KEY", ""),
+    model_name="sentence-transformers/all-MiniLM-L6-v2"
+)
 FAISS_DB_PATH="vectorstore/db_faiss"
 
 
@@ -53,7 +62,10 @@ def create_chunks(documents):
 
 
 def get_embedding_model():
-    return FastEmbedEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    return HuggingFaceInferenceAPIEmbeddings(
+        api_key=os.environ.get("HF_API_KEY", ""),
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
 
 
 def create_vector_store(db_faiss_path, text_chunks):
