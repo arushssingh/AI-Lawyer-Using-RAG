@@ -24,7 +24,7 @@ from langchain_groq import ChatGroq
 class HFEmbeddings(Embeddings):
     def __init__(self, api_key: str, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
         self.api_key = api_key
-        self.api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model_name}"
+        self.api_url = f"https://router.huggingface.co/pipeline/feature-extraction/{model_name}"
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
         all_embeddings = []
