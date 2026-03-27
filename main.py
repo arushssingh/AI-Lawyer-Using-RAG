@@ -27,13 +27,20 @@ class HFEmbeddings(Embeddings):
         self.api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model_name}"
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
-        response = requests.post(
-            self.api_url,
-            headers={"Authorization": f"Bearer {self.api_key}"},
-            json={"inputs": texts, "options": {"wait_for_model": True}}
-        )
-        response.raise_for_status()
-        return response.json()
+        all_embeddings = []
+        batch_size = 32
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i:i + batch_size]
+            response = requests.post(
+                self.api_url,
+                headers={"Authorization": f"Bearer {self.api_key}"},
+                json={"inputs": batch, "options": {"wait_for_model": True}},
+                timeout=120
+            )
+            if response.status_code != 200:
+                raise ValueError(f"HF API error {response.status_code}: {response.text}")
+            all_embeddings.extend(response.json())
+        return all_embeddings
 
     def embed_query(self, text: str) -> list[float]:
         return self.embed_documents([text])[0]
