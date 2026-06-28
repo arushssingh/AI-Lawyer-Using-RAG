@@ -34,7 +34,7 @@ python rag_pipeline.py
 
 <img width="1359" height="726" alt="Screenshot (1742)" src="https://github.com/user-attachments/assets/db99446f-d2c4-4125-b609-d821db4bb1ba" />
 
-GROQ API KEY has to be mentioned in a seperate ".env" File, I haven't Included it in the files as per GitHub Repository Rules.
+GEMINI API KEY has to be mentioned in a seperate ".env" File, I haven't Included it in the files as per GitHub Repository Rules.
 
 **Ensure that all dependencies are installed before running the scripts.**
 
